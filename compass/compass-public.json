@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "scan_date": "March 2026",
+    "next_scan": "June 2026",
+    "version": "v14",
+    "note": "PUBLIC TIER ONLY — pool/xfer/pickup/rate/vol/urg fields absent. Edit this file each quarter. Page reads it on load."
+  },
+  "signals": [
+    { "id":"s1", "name":"DORA TPRM",             "domain":"Resilience",  "status":"ACTIVE",   "summary":"DORA Art.28-44 third-party risk requirements. Jan 2025 enforcement date passed — remediation hiring is live." },
+    { "id":"s2", "name":"DORA ICT Register",      "domain":"Resilience",  "status":"ACTIVE",   "summary":"ICT asset register and incident reporting pipeline mandated across all EU financial entities." },
+    { "id":"s3", "name":"CRR3 / Basel IV",        "domain":"Regulatory",  "status":"FORWARD",  "summary":"CRR3 capital reporting changes require COREP reconfiguration. SA-CCR and FRTB add new data requirements." },
+    { "id":"s4", "name":"ISO 20022 Exploitation", "domain":"Payments",    "status":"CURRENT",  "summary":"Post-migration exploitation phase. Enriched MX message data driving payment analytics demand — the false finish line." },
+    { "id":"s5", "name":"Temenos Deal Pipeline",  "domain":"Platform",    "status":"CURRENT",  "summary":"SaaS pipeline conversion generating config specialist demand SI partners cannot absorb from bench alone." },
+    { "id":"s6", "name":"ServiceNow IRM Growth",  "domain":"Platform",    "status":"ACTIVE",   "summary":"IRM adoption up 60% YoY across EU FS. Structural demand for certified implementers — pool is thin." },
+    { "id":"s7, "name":"nCino EU Cross-Atlantic","domain":"Lending",     "status":"FORWARD",  "summary":"nCino EU footprint expansion. Each bank deployment requires nCino-certified consultants — EU pool materially smaller than US." }
+  ],
+  "roles": [
+    { "id":"f1", "sector":"FS", "band":"NOW",  "domain":"Resilience",  "role":"TPRM Programme Manager",        "sfia":"5-6", "geo":"NL / UK / DE / FR", "signal":"DORA TPRM",            "skills":["ServiceNow IRM","DORA Art.28","TPRM","ICT Risk"],           "window":"Immediate – Q2 2026" },
+    { "id":"f2", "sector":"FS", "band":"NOW",  "domain":"Resilience",  "role":"ICT Risk Analyst",              "sfia":"4-5", "geo":"EU-wide",            "signal":"DORA TPRM",            "skills":["ICT Risk","DORA Art.6","Risk Assessment","GRC"],            "window":"Immediate – Q3 2026" },
+    { "id":"f3", "sector":"FS", "band":"NOW",  "domain":"Regulatory",  "role":"AxiomSL ControllerView TF",     "sfia":"5-6", "geo":"NL / UK / DE",       "signal":"CRR3 / Basel IV",      "skills":["AxiomSL","COREP","Op Risk","Capital Reporting"],            "window":"Immediate – Q2 2026" },
+    { "id":"f4", "sector":"FS", "band":"NOW",  "domain":"Regulatory",  "role":"DPM 2.0 Data Architect",        "sfia":"5-6", "geo":"NL / DE / FR",       "signal":"CRR3 / Basel IV",      "skills":["DPM 2.0","BIRD","XBRL","Data Modelling"],                  "window":"Immediate – Q3 2026" },
+    { "id":"f5", "sector":"FS", "band":"NEXT", "domain":"Payments",    "role":"Payments Data Analyst",         "sfia":"4-5", "geo":"UK / NL / DE",       "signal":"ISO 20022 Exploitation","skills":["ISO 20022","MX Messages","Payment Data","SQL"],             "window":"Q2 – Q3 2026" },
+    { "id":"f6", "sector":"FS", "band":"NEXT", "domain":"Platform",    "role":"Temenos T24 Config Specialist", "sfia":"5-6", "geo":"W. Europe",           "signal":"Temenos Deal Pipeline","skills":["Temenos T24","Core Banking Config","Payments Modules"],      "window":"Q2 – Q4 2026" },
+    { "id":"f7", "sector":"FS", "band":"NEXT", "domain":"Lending",     "role":"nCino / Salesforce Lending Dev","sfia":"4-6", "geo":"NL / UK / IE",        "signal":"nCino EU Cross-Atlantic","skills":["nCino","Salesforce FS Cloud","Loan Origination"],           "window":"Q2 – Q4 2026" },
+    { "id":"f8", "sector":"FS", "band":"NOW",  "domain":"Platform",    "role":"ServiceNow IRM Consultant",     "sfia":"5-6", "geo":"NL / DE / FR / IE",  "signal":"ServiceNow IRM Growth","skills":["ServiceNow IRM","TPRM","DORA","GRC"],                        "window":"Immediate – Q2 2026" },
+    { "id":"f9", "sector":"FS", "band":"LATER","domain":"Regulatory",  "role":"Risk Model Validation Analyst", "sfia":"6-7", "geo":"LON / AMS / FRA",    "signal":"CRR3 / Basel IV",      "skills":["Model Validation","IRB","CRR3","Python","Credit Risk"],    "window":"Q4 2026 – Q1 2027" },
+    { "id":"t1", "sector":"Tech","band":"NOW", "domain":"Platform",    "role":"ServiceNow IRM Consultant",     "sfia":"5-6", "geo":"UK / NL / DE / FR",  "signal":"ServiceNow IRM Growth","skills":["ServiceNow IRM","GRC","TPRM","ITSM","App Engine"],           "window":"Immediate – Q3 2026" },
+    { "id":"t2", "sector":"Tech","band":"NOW", "domain":"Platform",    "role":"Copilot Studio Developer",      "sfia":"4-5", "geo":"UK / DE / NL",        "signal":"Copilot Studio Rollout","skills":["Copilot Studio","Power Platform","Azure OpenAI"],            "window":"Immediate – Q2 2026" },
+    { "id":"t3", "sector":"Tech","band":"NOW", "domain":"Platform",    "role":"Azure AI Foundry Engineer",     "sfia":"5-6", "geo":"UK / DE / NL / FR",   "signal":"Azure AI Foundry",     "skills":["Azure AI Foundry","Agentic AI","Python","LangChain"],       "window":"Immediate – Q3 2026" },
+    { "id":"t4", "sector":"Tech","band":"NOW", "domain":"Platform",    "role":"Platform Engineer (SRE)",       "sfia":"5-6", "geo":"UK / NL / DE",         "signal":"Cloud-Native Platform","skills":["Kubernetes","Terraform","GitOps","SRE"],                    "window":"Immediate – Q3 2026" },
+    { "id":"t5", "sector":"Tech","band":"NEXT","domain":"Platform",    "role":"AI Quality Assurance Engineer", "sfia":"4-5", "geo":"UK / DE",              "signal":"Azure AI Foundry",     "skills":["LLM Testing","Adversarial Testing","Python","Evals"],       "window":"Q2 – Q4 2026" },
+    { "id":"t6", "sector":"Tech","band":"NEXT","domain":"Platform",    "role":"ServiceNow App Engine Dev",     "sfia":"4-5", "geo":"UK / NL / DE / FR",   "signal":"ServiceNow IRM Growth","skills":["ServiceNow","App Engine","JavaScript","Flow Designer"],      "window":"Q2 – Q4 2026" },
+    { "id":"t7", "sector":"Tech","band":"LATER","domain":"Platform",   "role":"Agentic Workflow Architect",    "sfia":"6-7", "geo":"UK / NL",              "signal":"Azure AI Foundry",     "skills":["Agentic AI","Azure AI","Architecture","MCP Protocols"],    "window":"Q4 2026 – Q2 2027" },
+    { "id":"t8", "sector":"Tech","band":"LATER","domain":"Platform",   "role":"Data Platform Engineer",        "sfia":"5-6", "geo":"UK / DE / NL",         "signal":"Cloud-Native Platform","skills":["Databricks","dbt","Snowflake","Spark"],                      "window":"Q3 2026 – Q1 2027" }
+  ]
+}
