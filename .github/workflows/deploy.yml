@@ -1,4 +1,4 @@
-name: Deploy to Yadimen WordPress
+name: Deploy to Yadimen via FTP
 
 on:
   push:
@@ -13,46 +13,22 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Test WordPress REST API connection
-        env:
-          WP_USER: "admin@yadimen.com"
-          WP_PASS: ${{ secrets.WP_APP_PASSWORD }}
-          WP_URL: "https://yadimen.com"
+      - name: Deploy files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: /public_html/yadimen-pipeline/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .github/**
+
+      - name: Verify deployment
         run: |
-          echo "=== Testing WordPress REST API ==="
-          echo "URL: ${WP_URL}"
-          echo "User: ${WP_USER}"
-          echo "Pass length: ${#WP_PASS}"
-
-          # Strip spaces from app password (WP sometimes includes them)
-          CLEAN_PASS=$(echo "${WP_PASS}" | tr -d ' ')
-          echo "Clean pass length: ${#CLEAN_PASS}"
-
-          # Build Basic auth token
-          AUTH=$(printf '%s:%s' "${WP_USER}" "${CLEAN_PASS}" | base64 | tr -d '\n')
-          echo "Auth token length: ${#AUTH}"
-
-          # Test the connection — show full response
-          echo ""
-          echo "=== API Response ==="
-          curl -v \
-            -X GET \
-            "${WP_URL}/wp-json/wp/v2/users/me" \
-            -H "Authorization: Basic ${AUTH}" \
-            2>&1
-
-          echo ""
-          echo "=== HTTP Code Only ==="
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X GET \
-            "${WP_URL}/wp-json/wp/v2/users/me" \
-            -H "Authorization: Basic ${AUTH}")
-
-          echo "HTTP Code: ${HTTP_CODE}"
-
-          if [ "${HTTP_CODE}" = "200" ]; then
-            echo "SUCCESS: WordPress API connection working"
-          else
-            echo "FAILED: Got ${HTTP_CODE} — see full response above"
-            exit 1
-          fi
+          echo "Files deployed to Network Solutions"
+          echo "Test URL: https://yadimen.com/yadimen-pipeline/data/test.json"
+          echo "Done."
