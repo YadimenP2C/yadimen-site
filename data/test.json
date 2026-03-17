@@ -1,7 +1,7 @@
 {
   "pipe": "testing",
   "pushed_by": "Claude",
-  "attempt": 5,
-  "timestamp": "2026-03-17T18:30:00Z",
-  "note": "FTP credentials updated from NS SFTP Account Manager"
+  "attempt": 6,
+  "timestamp": "2026-03-17T18:40:00Z",
+  "note": "Retrying FTP with updated username from NS SFTP Account Manager"
 }
