@@ -1,7 +1,1 @@
-{
-  "pipe": "working",
-  "pushed_by": "Claude",
-  "timestamp": "2026-03-17",
-  "version": 1,
-  "message": "Claude can write directly to this repo. Pipeline is live."
-}
+{\n  "pipe": "testing",\n  "pushed_by": "Claude",\n  "attempt": 4,\n  "timestamp": "2026-03-17T18:00:00Z",\n  "note": "Fresh WP Application Password — testing auth"\n}\n
