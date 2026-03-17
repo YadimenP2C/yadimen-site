@@ -1,1 +1,7 @@
-{\n  "pipe": "testing",\n  "pushed_by": "Claude",\n  "attempt": 4,\n  "timestamp": "2026-03-17T18:00:00Z",\n  "note": "Fresh WP Application Password — testing auth"\n}\n
+{
+  "pipe": "testing",
+  "pushed_by": "Claude",
+  "attempt": 5,
+  "timestamp": "2026-03-17T18:30:00Z",
+  "note": "FTP credentials updated from NS SFTP Account Manager"
+}
