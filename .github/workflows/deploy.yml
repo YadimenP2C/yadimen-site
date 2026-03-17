@@ -5,11 +5,6 @@ on:
     branches:
       - main
 
-env:
-  WP_USER: "admin@yadimen.com"
-  WP_URL: "https://yadimen.com"
-  WP_POST_ID: "2496"
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,58 +15,44 @@ jobs:
 
       - name: Test WordPress REST API connection
         env:
+          WP_USER: "admin@yadimen.com"
           WP_PASS: ${{ secrets.WP_APP_PASSWORD }}
+          WP_URL: "https://yadimen.com"
         run: |
-          echo "Testing WordPress API connection..."
+          echo "=== Testing WordPress REST API ==="
+          echo "URL: ${WP_URL}"
+          echo "User: ${WP_USER}"
+          echo "Pass length: ${#WP_PASS}"
 
-          # Build auth token correctly — env var expands outside single quotes
-          AUTH=$(echo -n "${WP_USER}:${WP_PASS}" | base64 | tr -d '\n')
+          # Strip spaces from app password (WP sometimes includes them)
+          CLEAN_PASS=$(echo "${WP_PASS}" | tr -d ' ')
+          echo "Clean pass length: ${#CLEAN_PASS}"
 
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+          # Build Basic auth token
+          AUTH=$(printf '%s:%s' "${WP_USER}" "${CLEAN_PASS}" | base64 | tr -d '\n')
+          echo "Auth token length: ${#AUTH}"
+
+          # Test the connection — show full response
+          echo ""
+          echo "=== API Response ==="
+          curl -v \
+            -X GET \
+            "${WP_URL}/wp-json/wp/v2/users/me" \
+            -H "Authorization: Basic ${AUTH}" \
+            2>&1
+
+          echo ""
+          echo "=== HTTP Code Only ==="
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
             -X GET \
             "${WP_URL}/wp-json/wp/v2/users/me" \
             -H "Authorization: Basic ${AUTH}")
 
-          echo "API response code: $RESPONSE"
+          echo "HTTP Code: ${HTTP_CODE}"
 
-          if [ "$RESPONSE" = "200" ]; then
+          if [ "${HTTP_CODE}" = "200" ]; then
             echo "SUCCESS: WordPress API connection working"
           else
-            echo "FAILED: Response code $RESPONSE"
-            echo "Check that WP_APP_PASSWORD secret is set correctly"
-            exit 1
-          fi
-
-      - name: Create pipeline test page
-        env:
-          WP_PASS: ${{ secrets.WP_APP_PASSWORD }}
-        run: |
-          echo "Creating pipeline test page in WordPress..."
-
-          AUTH=$(echo -n "${WP_USER}:${WP_PASS}" | base64 | tr -d '\n')
-          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-          HTTP_CODE=$(curl -s -o /tmp/wp_response.json -w "%{http_code}" \
-            -X POST \
-            "${WP_URL}/wp-json/wp/v2/pages" \
-            -H "Authorization: Basic ${AUTH}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"title\": \"Pipeline Test\",
-              \"slug\": \"pipeline-test\",
-              \"status\": \"publish\",
-              \"content\": \"<p><strong>Pipeline confirmed.</strong> Claude → GitHub → WordPress. Deployed at: ${TIMESTAMP}</p>\"
-            }")
-
-          echo "HTTP response code: $HTTP_CODE"
-          cat /tmp/wp_response.json
-
-          if [ "$HTTP_CODE" = "201" ]; then
-            echo "SUCCESS: Test page created at ${WP_URL}/pipeline-test"
-          elif [ "$HTTP_CODE" = "400" ]; then
-            echo "Page may already exist (slug conflict) — checking..."
-            # 400 with slug conflict is fine for a repeat run
-          else
-            echo "Unexpected response: $HTTP_CODE"
+            echo "FAILED: Got ${HTTP_CODE} — see full response above"
             exit 1
           fi
