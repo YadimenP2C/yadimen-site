@@ -1,0 +1,53 @@
+name: Deploy to WordPress
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Test WordPress REST API connection
+        run: |
+          echo "Testing WordPress API connection..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET \
+            "https://yadimen.com/wp-json/wp/v2/users/me" \
+            -H "Authorization: Basic $(echo -n 'admin@yadimen.com:${{ secrets.WP_APP_PASSWORD }}' | base64)")
+          echo "API response code: $RESPONSE"
+          if [ "$RESPONSE" = "200" ]; then
+            echo "SUCCESS: WordPress API connection working"
+          else
+            echo "FAILED: Response code $RESPONSE"
+            exit 1
+          fi
+
+      - name: Update WordPress test page
+        run: |
+          echo "Updating WordPress page..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST \
+            "https://yadimen.com/wp-json/wp/v2/pages" \
+            -H "Authorization: Basic $(echo -n 'admin@yadimen.com:${{ secrets.WP_APP_PASSWORD }}' | base64)" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "title": "Pipeline Test",
+              "slug": "pipeline-test",
+              "status": "publish",
+              "content": "<p>Pipeline working. Pushed by GitHub Actions at $(date). Claude → GitHub → WordPress confirmed.</p>"
+            }')
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -1)
+          echo "Response code: $HTTP_CODE"
+          echo "Response: $BODY"
+          if [ "$HTTP_CODE" = "201" ]; then
+            echo "SUCCESS: Page created"
+          else
+            echo "Check response above for details"
+          fi
