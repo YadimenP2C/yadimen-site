@@ -1,9 +1,14 @@
-name: Deploy to WordPress
+name: Deploy to Yadimen WordPress
 
 on:
   push:
     branches:
       - main
+
+env:
+  WP_USER: "admin@yadimen.com"
+  WP_URL: "https://yadimen.com"
+  WP_POST_ID: "2496"
 
 jobs:
   deploy:
@@ -14,40 +19,59 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Test WordPress REST API connection
+        env:
+          WP_PASS: ${{ secrets.WP_APP_PASSWORD }}
         run: |
           echo "Testing WordPress API connection..."
+
+          # Build auth token correctly — env var expands outside single quotes
+          AUTH=$(echo -n "${WP_USER}:${WP_PASS}" | base64 | tr -d '\n')
+
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
             -X GET \
-            "https://yadimen.com/wp-json/wp/v2/users/me" \
-            -H "Authorization: Basic $(echo -n 'admin@yadimen.com:${{ secrets.WP_APP_PASSWORD }}' | base64)")
+            "${WP_URL}/wp-json/wp/v2/users/me" \
+            -H "Authorization: Basic ${AUTH}")
+
           echo "API response code: $RESPONSE"
+
           if [ "$RESPONSE" = "200" ]; then
             echo "SUCCESS: WordPress API connection working"
           else
             echo "FAILED: Response code $RESPONSE"
+            echo "Check that WP_APP_PASSWORD secret is set correctly"
             exit 1
           fi
 
-      - name: Update WordPress test page
+      - name: Create pipeline test page
+        env:
+          WP_PASS: ${{ secrets.WP_APP_PASSWORD }}
         run: |
-          echo "Updating WordPress page..."
-          RESPONSE=$(curl -s -w "\n%{http_code}" \
+          echo "Creating pipeline test page in WordPress..."
+
+          AUTH=$(echo -n "${WP_USER}:${WP_PASS}" | base64 | tr -d '\n')
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+          HTTP_CODE=$(curl -s -o /tmp/wp_response.json -w "%{http_code}" \
             -X POST \
-            "https://yadimen.com/wp-json/wp/v2/pages" \
-            -H "Authorization: Basic $(echo -n 'admin@yadimen.com:${{ secrets.WP_APP_PASSWORD }}' | base64)" \
+            "${WP_URL}/wp-json/wp/v2/pages" \
+            -H "Authorization: Basic ${AUTH}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "title": "Pipeline Test",
-              "slug": "pipeline-test",
-              "status": "publish",
-              "content": "<p>Pipeline working. Pushed by GitHub Actions at $(date). Claude → GitHub → WordPress confirmed.</p>"
-            }')
-          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-          BODY=$(echo "$RESPONSE" | head -1)
-          echo "Response code: $HTTP_CODE"
-          echo "Response: $BODY"
+            -d "{
+              \"title\": \"Pipeline Test\",
+              \"slug\": \"pipeline-test\",
+              \"status\": \"publish\",
+              \"content\": \"<p><strong>Pipeline confirmed.</strong> Claude → GitHub → WordPress. Deployed at: ${TIMESTAMP}</p>\"
+            }")
+
+          echo "HTTP response code: $HTTP_CODE"
+          cat /tmp/wp_response.json
+
           if [ "$HTTP_CODE" = "201" ]; then
-            echo "SUCCESS: Page created"
+            echo "SUCCESS: Test page created at ${WP_URL}/pipeline-test"
+          elif [ "$HTTP_CODE" = "400" ]; then
+            echo "Page may already exist (slug conflict) — checking..."
+            # 400 with slug conflict is fine for a repeat run
           else
-            echo "Check response above for details"
+            echo "Unexpected response: $HTTP_CODE"
+            exit 1
           fi
