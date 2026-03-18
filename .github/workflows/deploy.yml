@@ -16,16 +16,6 @@ jobs:
           python-version: '3.11'
       - name: Run inspector
         run: python .github/scripts/inspect.py
-      - name: Commit report
-        if: always()
-        run: |
-          git config user.name  "Yadimen CI"
-          git config user.email "ci@yadimen.com"
-          git add INSPECTION-REPORT.md
-          git diff --staged --quiet || git commit -m "ci: inspection report [skip ci]"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     name: FTP Deploy
