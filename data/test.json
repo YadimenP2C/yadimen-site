@@ -1,8 +1,7 @@
 {
   "pipe": "claude-to-github-to-ftp",
   "pushed_by": "Claude",
-  "attempt": 8,
-  "timestamp": "2026-03-18T09:00:00Z",
-  "status": "shakedown test",
-  "message": "If visible at yadimen.com/yadimen-pipeline/data/test.json — full pipe proven"
+  "attempt": 9,
+  "timestamp": "2026-03-18T09:30:00Z",
+  "message": "Shakedown with IP 66.96.131.109 and username yadimen"
 }
