@@ -1,7 +1,7 @@
 {
   "pipe": "claude-to-github-to-ftp",
   "pushed_by": "Claude",
-  "attempt": 9,
-  "timestamp": "2026-03-18T09:30:00Z",
-  "message": "Shakedown with IP 66.96.131.109 and username yadimen"
+  "version": "v7-deploy",
+  "timestamp": "2026-03-18T10:40:00Z",
+  "changes": "intelligence tone, white text fix, new team photo, outcome copy, request access gate"
 }
