@@ -25,7 +25,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Prepare deploy root
-        run: cp site/index.html index.html
+        run: |
+          cp site/index.html index.html
+          printf 'DirectoryIndex index.html index.php\n' > .htaccess
       - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server:     ${{ secrets.FTP_SERVER }}
