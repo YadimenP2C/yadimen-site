@@ -1,7 +1,7 @@
 {
-  "pipe": "testing",
+  "pipe": "claude-to-github-to-ftp",
   "pushed_by": "Claude",
-  "attempt": 6,
-  "timestamp": "2026-03-17T18:40:00Z",
-  "note": "Retrying FTP with updated username from NS SFTP Account Manager"
+  "attempt": 7,
+  "timestamp": "2026-03-18",
+  "message": "If you can read this at yadimen.com/yadimen-pipeline/data/test.json — the full pipe is proven"
 }
