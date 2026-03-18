@@ -56,7 +56,7 @@ GitHub repo: github.com/YadimenP2C/yadimen-site
     ↓  every push to main triggers GitHub Actions automatically
 FTP → Network Solutions server
       IP: 66.96.131.109 | User: yadimen
-    ↓  files land at /public_html/yadimen-pipeline/
+    ↓  files land at FTP root / (maps to public_html)
 yadimen.com serves them live
 ```
 
@@ -100,17 +100,18 @@ yadimen-site/
 
 **Server path mapping:**
 
-| Repo path | Server path | Live URL |
-|-----------|------------|----------|
-| `site/index.html` | `/public_html/yadimen-pipeline/site/index.html` | `yadimen.com/yadimen-pipeline/site/` |
-| `data/compass.json` | `/public_html/yadimen-pipeline/data/compass.json` | `yadimen.com/yadimen-pipeline/data/compass.json` |
-| `data/insights.json` | `/public_html/yadimen-pipeline/data/insights.json` | `yadimen.com/yadimen-pipeline/data/insights.json` |
-| `data/jobs.json` | `/public_html/yadimen-pipeline/data/jobs.json` | `yadimen.com/yadimen-pipeline/data/jobs.json` |
-| `data/blog.json` | `/public_html/yadimen-pipeline/data/blog.json` | `yadimen.com/yadimen-pipeline/data/blog.json` |
-| `reports/*.pdf` | `/public_html/yadimen-pipeline/reports/` | `yadimen.com/yadimen-pipeline/reports/` |
+| Repo path | Server path (FTP root = public_html) | Live URL |
+|-----------|--------------------------------------|----------|
+| `site/index.html` | `/site/index.html` + `/index.html` (copied at deploy) | `yadimen.com` |
+| `data/compass.json` | `/data/compass.json` | `yadimen.com/data/compass.json` |
+| `data/insights.json` | `/data/insights.json` | `yadimen.com/data/insights.json` |
+| `data/jobs.json` | `/data/jobs.json` | `yadimen.com/data/jobs.json` |
+| `data/blog.json` | `/data/blog.json` | `yadimen.com/data/blog.json` |
+| `reports/*.pdf` | `/reports/` | `yadimen.com/reports/` |
 
-> **Note:** `/yadimen-pipeline/` is the current test path. Once confirmed stable,
-> update `server-dir` in `deploy.yml` to `/public_html/` for production root.
+> **Confirmed:** FTP `server-dir: /` maps to `public_html`. Deploy copies
+> `site/index.html` → root `index.html` and deploys `.htaccess` with
+> `DirectoryIndex index.html index.php` so our static site serves before WordPress.
 
 ---
 
@@ -251,7 +252,7 @@ Step 5: Change is live — verify at the relevant URL
 | Quarterly Compass refresh | "Refresh Compass for Q[N] [year]" + data | `data/compass.json` | ~45s |
 | New blog post | "Publish this post" + paste text | `data/blog.json` | ~45s |
 | Site design change | "Update [section] to [change]" | `site/index.html` | ~45s |
-| Verify pipeline | — | Visit `yadimen.com/yadimen-pipeline/data/test.json` | instant |
+| Verify pipeline | — | Visit `yadimen.com/data/test.json` | instant |
 
 ---
 
@@ -259,30 +260,13 @@ Step 5: Change is live — verify at the relevant URL
 
 File: `.github/workflows/deploy.yml` — **do not edit manually.**
 
-```yaml
-name: Deploy to Yadimen via FTP
-on:
-  push:
-    branches: [main]
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          protocol: ftp
-          local-dir: ./
-          server-dir: /public_html/yadimen-pipeline/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            .github/**
-```
+See `.github/workflows/deploy.yml` for the current workflow.
+
+Key settings:
+- `server-dir: /` (FTP root = public_html on Network Solutions)
+- `local-dir: ./`
+- Deploy copies `site/index.html` → root `index.html` before FTP upload
+- `.htaccess` generated at deploy with `DirectoryIndex index.html index.php`
 
 ### GitHub Secrets — Required
 
@@ -373,14 +357,14 @@ These items in existing project files are superseded by this document:
 | Item | Status | Next action |
 |------|--------|------------|
 | Pipeline (Claude→GitHub→FTP→server) | ✅ PROVEN | — |
-| Site HTML v7 | ✅ Built | Push `site/index.html` via GitHub MCP |
+| Site HTML v8 | ✅ Live at yadimen.com | Serving via FTP pipeline |
 | v7 reads from JSON (not hardcoded) | ❌ Not yet | Update `site/index.html` after deploy confirmed |
 | `data/compass.json` | ⏳ At `compass/compass-public.json` | Move to `data/compass.json` |
 | `data/insights.json` | ❌ Not created | Create with 8 playbook entries |
 | `data/jobs.json` | ❌ Not created | Create with seed roles |
 | `data/blog.json` | ❌ Not created | Create empty, populate on first post |
 | Team photo `Yadimen_Final_team.png` | ✅ Uploaded to WP | Referenced in v7 HTML |
-| Production `server-dir` path | ⏳ Confirm | Change `/yadimen-pipeline/` → `/public_html/` |
+| Production `server-dir` path | ✅ Confirmed: `/` | FTP root = public_html. Proven March 18, 2026. |
 | Zoho CRM gate wired | ❌ Pending | Sprint 1 |
 | Zoho SalesIQ chat | ❌ Pending | Sprint 2 |
 | Bridge plugin v2.0 | ✅ Built in repo | Install in WordPress when needed |
@@ -396,7 +380,7 @@ Every session — no exceptions:
 - [ ] Never build from memory — read canonical files first
 - [ ] Never share credentials in chat
 - [ ] Never attempt Chrome/browser injection for site deploys
-- [ ] Verify pipeline health: `yadimen.com/yadimen-pipeline/data/test.json`
+- [ ] Verify pipeline health: `yadimen.com/data/test.json`
 - [ ] All deploys go through GitHub → FTP pipeline only
 
 ---
