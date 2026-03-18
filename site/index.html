@@ -198,10 +198,13 @@ nav {
 }
 .hero-right {
   background: var(--ai-blue);
-  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   position: relative;
   overflow: hidden;
   padding: 0;
+  min-height: calc(100vh - 72px);
 }
 .hero-right::before { display: none; }
 .hero-right::after  { display: none; }
@@ -598,18 +601,15 @@ footer { padding:2.5rem 4rem; border-top:1px solid var(--rule); display:flex; ju
   .metric-val { font-size: 1.9rem; }
   .metric-label { font-size: .62rem; }
 
-  /* Hero-right — full width, fixed height, no truncation */
+  /* Hero-right — full width, fixed height, team centred */
   .hero-right {
-    height: 420px;
     min-height: 420px;
+    height: auto;
   }
   .hero-right img {
-    min-height: 420px !important;
-    object-position: center 15% !important;
+    width: 88% !important;
+    max-width: 380px !important;
   }
-  /* Move dividers lower on mobile so they clear faces */
-  .hero-divider-ai   { top: 52% !important; }
-  .hero-divider-human{ top: 55% !important; }
 
   /* ── SECTION RULES ── */
   .section-rule { padding: 1.8rem 1.2rem; }
@@ -804,44 +804,44 @@ footer { padding:2.5rem 4rem; border-top:1px solid var(--rule); display:flex; ju
         <div><div class="metric-val">EU+85</div><div class="metric-label">Countries<br>deployable</div></div>
       </div>
     </div>
-    <div class="hero-right" style="padding:0;position:relative;overflow:hidden;">
-      <img src="https://yadimen.com/wp-content/uploads/2026/03/Yadimen_Final_team.png"
-           alt="Yadimen — People and agents, working as one"
-           style="width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block;min-height:calc(100vh - 72px);">
-      <!-- Top overlay — headline -->
-      <div style="position:absolute;top:0;left:0;right:0;padding:2rem 2rem 3rem;background:linear-gradient(to bottom,rgba(13,31,53,0.92) 0%,rgba(13,31,53,0.6) 55%,transparent 100%);z-index:2;">
-        <div style="font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ai-glow);margin-bottom:.6rem;">A(I) team where some never sleep.</div>
-        <div style="font-family:'Playfair Display',serif;font-size:clamp(1.4rem,2.2vw,2rem);color:#ffffff;line-height:1.25;letter-spacing:-.01em;">People &amp; agents,<br><em style="font-style:italic;color:var(--gold-light);">working as one.</em></div>
-      </div>
-      <!-- AI / Human divider — positioned below the standing row faces -->
-      <div style="position:absolute;top:58%;left:0;right:0;z-index:3;display:flex;align-items:center;gap:0;">
-        <div style="flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(74,158,255,.5));"></div>
-        <div style="background:rgba(13,31,53,.85);border:1px solid rgba(74,158,255,.4);padding:.22rem .9rem;display:flex;align-items:center;gap:.4rem;">
-          <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ai-glow);animation:pulse 2s infinite;"></span>
-          <span style="font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ai-glow);">AI agents</span>
+    <!-- Hero right — orbit/centre-stage treatment -->
+    <div class="hero-right" style="background:var(--ai-blue);padding:0;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;">
+
+      <!-- Text header — sits in clean navy space above team -->
+      <div style="position:absolute;top:0;left:0;right:0;padding:2.2rem 2.2rem 0;z-index:3;">
+        <div style="font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ai-glow);margin-bottom:.65rem;display:flex;align-items:center;gap:.5rem;">
+          <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ai-glow);animation:pulse 2s infinite;flex-shrink:0;"></span>
+          A(I) team where some never sleep.
         </div>
-        <div style="flex:1;height:1px;background:linear-gradient(to left,transparent,rgba(74,158,255,.5));"></div>
-      </div>
-      <div style="position:absolute;top:61%;left:0;right:0;z-index:3;display:flex;align-items:center;gap:0;">
-        <div style="flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(184,147,90,.5));"></div>
-        <div style="background:rgba(13,31,53,.85);border:1px solid rgba(184,147,90,.4);padding:.22rem .9rem;">
-          <span style="font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-light);">Human specialists</span>
+        <div style="font-family:'Playfair Display',serif;font-size:clamp(1.5rem,2.4vw,2.1rem);color:#ffffff;line-height:1.2;letter-spacing:-.01em;">
+          People &amp; agents,<br><em style="font-style:italic;color:var(--gold-light);">working as one.</em>
         </div>
-        <div style="flex:1;height:1px;background:linear-gradient(to left,transparent,rgba(184,147,90,.5));"></div>
-      </div>
-      <!-- Bottom strip -->
-      <div style="position:absolute;bottom:0;left:0;right:0;padding:1.2rem 1.8rem;background:linear-gradient(to top,rgba(13,31,53,0.92) 0%,rgba(13,31,53,0.5) 60%,transparent 100%);z-index:2;display:flex;justify-content:space-between;align-items:flex-end;">
-        <div style="display:flex;gap:1.2rem;align-items:center;">
+        <!-- Agent / Human legend -->
+        <div style="display:flex;gap:1.5rem;margin-top:1.1rem;">
           <div style="display:flex;align-items:center;gap:.4rem;">
-            <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ai-glow);animation:pulse 2s infinite;"></span>
-            <span style="font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(74,158,255,.8);">5 agents online</span>
+            <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ai-glow);box-shadow:0 0 6px rgba(74,158,255,.7);flex-shrink:0;"></span>
+            <span style="font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(74,158,255,.9);">5 AI agents</span>
           </div>
           <div style="display:flex;align-items:center;gap:.4rem;">
-            <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.8;"></span>
-            <span style="font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(184,147,90,.8);">Human specialists</span>
+            <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold-light);opacity:.9;flex-shrink:0;"></span>
+            <span style="font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(184,147,90,.9);">Human specialists</span>
           </div>
         </div>
-        <span style="font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);">EU-wide · 2026</span>
+      </div>
+
+      <!-- Team photo — contained, full team visible, centred like an orbit -->
+      <div style="position:relative;width:100%;flex:1;display:flex;align-items:flex-end;justify-content:center;padding-top:9rem;z-index:2;">
+        <!-- Subtle radial glow behind team — orbit effect -->
+        <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:90%;height:70%;background:radial-gradient(ellipse at 50% 100%,rgba(74,158,255,.08) 0%,transparent 70%);pointer-events:none;"></div>
+        <img src="https://yadimen.com/wp-content/uploads/2026/03/Firefly.png"
+             alt="Yadimen — People and agents, working as one"
+             style="width:92%;max-width:520px;height:auto;object-fit:contain;display:block;margin:0 auto;position:relative;z-index:2;">
+      </div>
+
+      <!-- Bottom strip — EU-wide marker -->
+      <div style="padding:.9rem 2.2rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.07);z-index:3;position:relative;">
+        <span style="font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);">EU-wide deployment · 85 countries</span>
+        <span style="font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);">2026</span>
       </div>
     </div>
   </section>
@@ -1027,8 +1027,6 @@ footer { padding:2.5rem 4rem; border-top:1px solid var(--rule); display:flex; ju
       <p style="font-size:.78rem;color:rgba(255,255,255,.45);line-height:1.65;margin-bottom:.9rem">Pool depth, transfer paths, and pickup signals — filtered to your delivery geographies.</p>
       <button onclick="document.getElementById('gate-email').focus();document.getElementById('gate-email').scrollIntoView({behavior:'smooth'})" style="width:100%;font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;padding:.7rem;background:rgba(184,147,90,.16);color:var(--gold-light);border:1px solid rgba(184,147,90,.28);cursor:pointer">Request full intelligence →</button>
       <div style="font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-top:1.3rem;line-height:1.8">Scanned: March 2026<br>Next scan: June 2026</div>
-    </div>
-  </div>
     </div>
   </div>
 </div>
@@ -1906,7 +1904,6 @@ function gateDownload(gateId, inputId, pdfUrl) {
     setTimeout(() => { input.style.borderColor = ''; }, 2000);
     return;
   }
-  // Gate capture: wired to Zoho in production
   const gate = document.getElementById(gateId);
   if (gate) {
     gate.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;">· Report ready ·</div>' +
