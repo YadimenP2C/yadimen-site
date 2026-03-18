@@ -32,16 +32,20 @@ jobs:
           port:       21
           protocol:   ftp
           local-dir:  ./
-          server-dir: /public_html/yadimen-pipeline/
+          server-dir: /public_html/
           exclude: |
             **/.git*
             **/.git*/**
             .github/**
-            INSPECTION-REPORT.md
+            .claude/**
+            .gitignore
+            OPERATIONS.md
             README.md
+            INSPECTION-REPORT.md
+            compass/**
       - name: Health check
         run: |
           sleep 10
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            https://yadimen.com/yadimen-pipeline/data/test.json)
+            https://yadimen.com/data/test.json)
           echo "Health check: HTTP $STATUS"
