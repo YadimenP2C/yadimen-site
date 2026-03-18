@@ -32,7 +32,7 @@ jobs:
           port:       21
           protocol:   ftp
           local-dir:  ./
-          server-dir: /yadimen/
+          server-dir: /yadimen.com/
           exclude: |
             **/.git*
             **/.git*/**
