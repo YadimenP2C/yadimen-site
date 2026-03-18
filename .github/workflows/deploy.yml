@@ -24,6 +24,8 @@ jobs:
     if: needs.inspect.result == 'success'
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare deploy root
+        run: cp site/index.html index.html
       - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server:     ${{ secrets.FTP_SERVER }}
