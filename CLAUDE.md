@@ -4,167 +4,77 @@
 
 ---
 
-## ⚠️ EMERGENCY — Two critical issues. Run BOTH in parallel.
+## STATUS
+
+| Task | Status |
+|------|--------|
+| S0-1 to S0-5: JSON data files + wire site | 🔄 Active |
+| UX-1: Aria labels | ⏳ After S0 |
+| UX-2: Colour contrast | ⏳ After S0 |
+| UX-3: LCP performance | ⏳ After S0 |
 
 ---
 
-## TASK 1 — IR-0: Fix SSL certificate (DO FIRST, highest priority)
+## ACTIVE — Sprint 0 remaining
 
-**Goal:** `https://yadimen.com` loads with valid SSL. No ERR_CERT_AUTHORITY_INVALID.
-`curl -I https://yadimen.com` returns HTTP/2 200.
+Create the four missing data files and wire the site to read from them.
+inspect.py must go from 35/35 with 4 SKIPS to 39/39 with 0 SKIPS.
 
-**Root cause:** `.htaccess` we deployed broke SSL chain on Network Solutions WordPress hosting.
+### Step 1 — Create data/compass.json
+Use compass-public.json in repo as schema reference.
+Populate with Q1 2026 structure. Include signal_status per role:
+  emerging / accelerating / peaking / stabilising / dying
+Min 5 roles covering: TPRM, DORA, ISO 20022, ServiceNow IRM, AxiomSL.
 
-**Steps:**
-1. Get current `.htaccess` from repo root
-2. Replace entire content with:
+### Step 2 — Create data/insights.json
+8 playbook entries.
+Fields: id, title, domain, date, type, pdf_url, supersedes, active
+pdf_url format: /wp-content/uploads/2026/03/[slug].pdf
+All active:true, supersedes:null
 
-```
-# Force HTTPS — before anything else
-RewriteEngine On
-RewriteCond %{HTTPS} off
-RewriteCond %{REQUEST_URI} !^/\.well-known/
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+### Step 3 — Create data/jobs.json
+3 active seed roles:
+  - TPRM Programme Manager (Contract, Resilience, NL/UK/DE/FR)
+  - ServiceNow IRM Consultant (Contract, Resilience, NL/DE/FR/IE)
+  - AxiomSL ControllerView TF (Contract, Platform, NL/UK/DE)
+Fields: id, title, type, domain, location, posted, active, apply
+apply format: mailto:hello@yadimen.com?subject=[role-name]
 
-# Never intercept WordPress core paths
-RewriteCond %{REQUEST_URI} ^/wp- [NC]
-RewriteRule ^ - [L]
+### Step 4 — Create data/blog.json
+Empty array: []
 
-# Serve our static site for all other requests
-DirectoryIndex index.html index.php
+### Step 5 — Check site/index.html
+Identify hardcoded content that duplicates JSON data.
+Wire fetch() calls to load from data/*.json on page load.
+Graceful fallback if fetch fails (show static content).
 
-# WordPress fallback
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [L]
-```
+### Step 6 — Verify
+Run: python .github/scripts/inspect.py
+Must show: 39/39 PASS, 0 SKIP, 0 FAIL
 
-3. Run `python .github/scripts/inspect.py` — must pass
-4. Commit: `fix: htaccess SSL preservation — resolves ERR_CERT and FortiGuard block`
-5. Push to main
-6. Wait 45s for deploy
-7. Run: `curl -I https://yadimen.com` — confirm HTTP/2 200
-8. Run: `curl -I http://yadimen.com` — confirm 301 redirect to https
+### Step 7 — Commit and push
+Commit: "feat(sprint-0): add data JSON files, wire site to JSON — Sprint 0 complete"
+Push to main.
 
-**STOP AFTER 2 FAILED ATTEMPTS — report to PO**
-
----
-
-## TASK 2 — IR-2: Add Infrastructure & Reachability checks to inspect.py
-
-**Goal:** inspect.py checks SSL and HTTPS redirect on every deploy. Blocks deploy if broken.
-Run AFTER Task 1 is verified working.
-
-**Steps:**
-1. Open `.github/scripts/inspect.py`
-2. Add new Category 5 section before the report generation block:
-
-```python
-# ─────────────────────────────────────────────────────────────
-# CATEGORY 5 — INFRASTRUCTURE & REACHABILITY
-# ─────────────────────────────────────────────────────────────
-
-print("\n── Category 5: Infrastructure & Reachability ──")
-
-# CI-IR1: HTTPS redirect rule present in .htaccess
-htaccess_path = Path(".htaccess")
-if htaccess_path.exists():
-    htaccess = htaccess_path.read_text()
-    has_https_redirect = (
-        "RewriteCond %{HTTPS} off" in htaccess and
-        "https://%{HTTP_HOST}" in htaccess
-    )
-    ok("CI-IR1", "HTTPS redirect rule in .htaccess", has_https_redirect)
-
-    # CI-IR2: WordPress paths preserved
-    has_wp_preserve = (
-        "/wp-" in htaccess and
-        "RewriteRule ^ - [L]" in htaccess
-    )
-    ok("CI-IR2", "WordPress paths preserved in .htaccess", has_wp_preserve)
-
-    # CI-IR3: .well-known path preserved for SSL renewal
-    ok("CI-IR3", ".well-known path preserved for SSL renewal",
-        ".well-known" in htaccess)
-else:
-    skip("CI-IR1", "HTTPS redirect in .htaccess", ".htaccess not in repo")
-    skip("CI-IR2", "WordPress paths in .htaccess", ".htaccess not in repo")
-    skip("CI-IR3", ".well-known path", ".htaccess not in repo")
-
-# CI-IR4: No mixed content in site HTML
-mixed = re.findall(r'(?:src|href)=["\']http://(?!localhost)[^"\']+', html)
-ok("CI-IR4", "No mixed content (HTTP asset references)",
-    not mixed, f"Found: {mixed[:2]}" if mixed else "")
-```
-
-3. Run `python .github/scripts/inspect.py` — all new CI-IR checks must pass
-4. Commit: `ci: add Category 5 Infrastructure & Reachability checks to inspect.py`
-5. Push to main
-
-**STOP AFTER 2 FAILED ATTEMPTS — report to PO**
+**STOP AFTER 2 failed attempts per step — report to PO**
 
 ---
 
-## TASK 3 — UX Pipeline: Build Phase 1 automated baseline
+## QUEUED — UX Audit Fixes (pick up after Sprint 0)
 
-**Goal:** Single command `bash tests/ux-pipeline/run.sh` runs Lighthouse + Pa11y against
-`https://yadimen.com` and outputs dated JSON reports to `tests/ux-pipeline/reports/`.
-Run AFTER Tasks 1 and 2 are complete.
-
-**Steps:**
-1. Create folder structure: `tests/ux-pipeline/`
-2. Create `tests/ux-pipeline/package.json`:
-```json
-{
-  "name": "yadimen-ux-pipeline",
-  "version": "1.0.0",
-  "scripts": {
-    "lighthouse": "lighthouse https://yadimen.com --output json --output-path ./reports/lighthouse-$(date +%Y%m%d).json --chrome-flags=\"--headless --no-sandbox\"",
-    "pa11y": "pa11y https://yadimen.com --reporter json > ./reports/a11y-$(date +%Y%m%d).json"
-  },
-  "devDependencies": {
-    "lighthouse": "^12.0.0",
-    "pa11y": "^8.0.0"
-  }
-}
-```
-3. Create `tests/ux-pipeline/run.sh`:
-```bash
-#!/bin/bash
-set -e
-DATE=$(date +%Y%m%d)
-mkdir -p reports
-echo "Running Lighthouse..."
-npx lighthouse https://yadimen.com \
-  --output json \
-  --output-path ./reports/lighthouse-$DATE.json \
-  --chrome-flags="--headless --no-sandbox" \
-  --quiet
-echo "Running Pa11y accessibility audit..."
-npx pa11y https://yadimen.com \
-  --reporter json > ./reports/a11y-$DATE.json
-echo "Done. Reports in ./reports/"
-ls -la reports/
-```
-4. Add `tests/ux-pipeline/reports/` to `.gitignore` (reports are local artifacts)
-5. Run: `cd tests/ux-pipeline && npm install && bash run.sh`
-6. Confirm both JSON files created in reports/
-7. Commit: `test: add UX pipeline Phase 1 — Lighthouse + Pa11y baseline`
-8. Push to main
-
-**STOP AFTER 2 FAILED ATTEMPTS — report to PO**
+Three GitHub Issues will be created by PO with full specs.
+Do NOT start these until Sprint 0 is verified complete.
+Issue titles to look for:
+  UX-1: [EMERGENCY] Accessibility — missing aria-labels
+  UX-2: [EMERGENCY] Accessibility — colour contrast WCAG AA
+  UX-3: [P1] Performance — LCP 13.4s
 
 ---
 
 ## Do NOT touch
-- `wp-config.php` or any WordPress core files
-- `site/index.html` (no design changes in this task)
-- Any file with dates before 2025 on the server
-
-## Verify all three tasks done:
-- Task 1: `curl -I https://yadimen.com` → HTTP/2 200
-- Task 2: `python .github/scripts/inspect.py` → 43/43 passed (4 new IR checks)
-- Task 3: `tests/ux-pipeline/reports/` contains lighthouse + a11y JSON files
+- wp-config.php or WordPress core files
+- .github/workflows/ (pipeline is correct)
+- Any server files predating 2025
 
 ## Last Updated
-March 2026 — Emergency SSL fix + IR checks + UX pipeline Phase 1
+2026-03-19 — Sprint 0 active, UX fixes queued as GitHub Issues
