@@ -27,7 +27,26 @@ jobs:
       - name: Prepare deploy root
         run: |
           cp site/index.html index.html
-          printf 'DirectoryIndex index.html index.php\n' > .htaccess
+          cat > .htaccess <<'HTEOF'
+          # Force HTTPS first
+          RewriteEngine On
+          RewriteCond %{HTTPS} off
+          RewriteCond %{REQUEST_URI} !^/\.well-known/
+          RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+          # Never intercept WordPress core paths
+          RewriteCond %{REQUEST_URI} ^/wp- [NC]
+          RewriteRule ^ - [L]
+          # Never intercept WordPress admin
+          RewriteCond %{REQUEST_URI} ^/wp-admin [NC]
+          RewriteRule ^ - [L]
+          # Serve our static site for all other requests
+          DirectoryIndex index.html index.php
+          # WordPress fallback
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^ index.php [L]
+          HTEOF
+          sed -i 's/^          //' .htaccess
       - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server:     ${{ secrets.FTP_SERVER }}
