@@ -26,5 +26,6 @@ jobs:
         run: |
           pa11y https://yadimen.com \
             --reporter cli \
-            --threshold 5 || true
+            --threshold 5 \
+            --launch-options '{"args":["--no-sandbox","--disable-setuid-sandbox"]}' || true
         continue-on-error: true
