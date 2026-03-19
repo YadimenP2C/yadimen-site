@@ -463,6 +463,42 @@ else:
                 f"Bad URLs: {bad_urls[:2]}" if bad_urls else "")
 
 # ─────────────────────────────────────────────────────────────
+# CATEGORY 5 — INFRASTRUCTURE & REACHABILITY
+# ─────────────────────────────────────────────────────────────
+
+print("\n── Category 5: Infrastructure & Reachability ──")
+
+# CI-IR1: HTTPS redirect rule present in .htaccess
+htaccess_path = Path(".htaccess")
+if htaccess_path.exists():
+    htaccess = htaccess_path.read_text()
+    has_https_redirect = (
+        "RewriteCond %{HTTPS} off" in htaccess and
+        "https://%{HTTP_HOST}" in htaccess
+    )
+    record("CI-IR1", "HTTPS redirect rule in .htaccess", has_https_redirect)
+
+    # CI-IR2: WordPress paths preserved
+    has_wp_preserve = (
+        "/wp-" in htaccess and
+        "RewriteRule ^ - [L]" in htaccess
+    )
+    record("CI-IR2", "WordPress paths preserved in .htaccess", has_wp_preserve)
+
+    # CI-IR3: .well-known path preserved for SSL renewal
+    record("CI-IR3", ".well-known path preserved for SSL renewal",
+        ".well-known" in htaccess)
+else:
+    skip("CI-IR1", "HTTPS redirect in .htaccess", ".htaccess not in repo")
+    skip("CI-IR2", "WordPress paths in .htaccess", ".htaccess not in repo")
+    skip("CI-IR3", ".well-known path", ".htaccess not in repo")
+
+# CI-IR4: No mixed content in site HTML
+mixed = re.findall(r'(?:src|href)=["\']http://(?!localhost)[^"\']+', html)
+record("CI-IR4", "No mixed content (HTTP asset references)",
+    len(mixed) == 0, f"Found: {mixed[:2]}" if mixed else "")
+
+# ─────────────────────────────────────────────────────────────
 # REPORT GENERATION
 # ─────────────────────────────────────────────────────────────
 

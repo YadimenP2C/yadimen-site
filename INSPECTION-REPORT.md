@@ -1,9 +1,9 @@
 # Yadimen Code Inspection Report
 
-**Run:** 2026-03-19 13:55 UTC  
+**Run:** 2026-03-19 14:58 UTC  
 **File:** `site/index.html`  
 **Result:** ✅ ALL PASSED  
-**Score:** 31/31 (100%)  
+**Score:** 35/35 (100%)  
 
 ---
 
@@ -46,6 +46,10 @@
 | `CI-J3` | insights.json schema valid | ⏭️ SKIP | insights.json not found in data/ |
 | `CI-J4` | jobs.json schema valid | ⏭️ SKIP | jobs.json not found in data/ |
 | `CI-J5` | blog.json schema valid | ⏭️ SKIP | blog.json not found in data/ |
+| `CI-IR1` | HTTPS redirect rule in .htaccess | ✅ PASS | — |
+| `CI-IR2` | WordPress paths preserved in .htaccess | ✅ PASS | — |
+| `CI-IR3` | .well-known path preserved for SSL renewal | ✅ PASS | — |
+| `CI-IR4` | No mixed content (HTTP asset references) | ✅ PASS | — |
 
 ---
 

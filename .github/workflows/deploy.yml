@@ -14,6 +14,28 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Generate .htaccess for inspection
+        run: |
+          cat > .htaccess <<'HTEOF'
+          # Force HTTPS — before anything else
+          RewriteEngine On
+          RewriteCond %{HTTPS} off
+          RewriteCond %{REQUEST_URI} !^/\.well-known/
+          RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+          # Never intercept WordPress core paths
+          RewriteCond %{REQUEST_URI} ^/wp- [NC]
+          RewriteRule ^ - [L]
+
+          # Serve our static site for all other requests
+          DirectoryIndex index.html index.php
+
+          # WordPress fallback
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^ index.php [L]
+          HTEOF
+          sed -i 's/^          //' .htaccess
       - name: Run inspector
         run: python .github/scripts/inspect.py
 
@@ -28,19 +50,19 @@ jobs:
         run: |
           cp site/index.html index.html
           cat > .htaccess <<'HTEOF'
-          # Force HTTPS first
+          # Force HTTPS — before anything else
           RewriteEngine On
           RewriteCond %{HTTPS} off
           RewriteCond %{REQUEST_URI} !^/\.well-known/
           RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
           # Never intercept WordPress core paths
           RewriteCond %{REQUEST_URI} ^/wp- [NC]
           RewriteRule ^ - [L]
-          # Never intercept WordPress admin
-          RewriteCond %{REQUEST_URI} ^/wp-admin [NC]
-          RewriteRule ^ - [L]
+
           # Serve our static site for all other requests
           DirectoryIndex index.html index.php
+
           # WordPress fallback
           RewriteCond %{REQUEST_FILENAME} !-f
           RewriteCond %{REQUEST_FILENAME} !-d
