@@ -27,5 +27,5 @@ jobs:
           pa11y https://yadimen.com \
             --reporter cli \
             --threshold 5 \
-            --launch-options '{"args":["--no-sandbox","--disable-setuid-sandbox"]}' || true
+            --config .pa11yci.json || true
         continue-on-error: true
