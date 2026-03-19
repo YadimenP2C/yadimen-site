@@ -1,63 +1,108 @@
 # CLAUDE.md — Current Task Brief
-<!-- Updated by claude.ai after each session. Read by Claude Code on startup. -->
 
-## Current Sprint
-Sprint 0 — Foundation
+## EMERGENCY — Two critical issues blocking yadimen.com
 
-## Current Goal
-Complete Sprint 0: SDLC bootstrap in GitHub + data JSON files + site reads from JSON.
+---
 
-## Current State (March 2026)
-- v9 live at yadimen.com — orbit hero, clean photo, pipeline proven
-- inspect.py passing 39/39 in GitHub Actions
-- OPERATIONS.md, INSPECTION-REPORT.md, deploy.yml in repo
-- MISSING: ENGINEER.md, QA.md, PROJECT-METADATA.md, agent-poll.py
-- MISSING: data/compass.json, data/insights.json, data/jobs.json, data/blog.json
-- MISSING: GitHub Issue label schema, Sprint 0-7 issues
-- site/index.html still has hardcoded data — not reading from JSON yet
+## Issue 1 — IR-0: SSL Certificate Invalid (DO THIS FIRST)
 
-## Next Actions (in order)
-1. Push ENGINEER.md, QA.md, PROJECT-METADATA.md, agent-poll.py to repo root
-2. Create GitHub Issue label schema (9 state + type + priority + sprint labels)
-3. Create Sprint 0-7 GitHub Issues with full task briefs
-4. Create data/compass.json — Q1 2026, 18 roles, signal status field
-5. Create data/insights.json — 8 playbooks with PDF URLs
-6. Create data/jobs.json — 3 seed roles, active:true
-7. Create data/blog.json — empty array
-8. Update site/index.html — wire all fetch() calls to /data/*.json
-9. Run inspect.py — confirm 39/39 with zero skips (JSON checks must pass)
-10. Push and confirm GitHub Actions green
+**Goal:** `https://yadimen.com` loads with valid SSL, no browser warning, no ERR_CERT_AUTHORITY_INVALID.
 
-## Guardrails for This Task
-- STOP after 5 attempts on any single item — post report and escalate
-- Do NOT modify .htaccess or WordPress files
-- Do NOT delete any file with a date before 2025
-- STOP before any paid service activation (Zoho)
+**Root cause:** `.htaccess` deployment broke SSL certificate chain on Network Solutions WordPress hosting.
 
-## Do Not Touch
+**Claude Code task:**
+1. Get current `.htaccess` from repo
+2. Replace entire content with this corrected version:
+
+```
+# Force HTTPS — before anything else
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Never intercept WordPress core paths
+RewriteCond %{REQUEST_URI} ^/wp- [NC]
+RewriteRule ^ - [L]
+
+# Serve our static site for all other requests
+DirectoryIndex index.html index.php
+
+# WordPress fallback
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
+```
+
+3. Run `inspect.py` — must pass
+4. Commit: `fix: htaccess SSL preservation — resolves ERR_CERT and FortiGuard block`
+5. Push to main
+6. After deploy (45s): run `curl -I https://yadimen.com`
+7. Verify: HTTP/2 200, no SSL error, `http://` redirects to `https://`
+
+**STOP AFTER 2 FAILED ATTEMPTS — report to PO**
+
+---
+
+## Issue 2 — IR-2: Add Infrastructure & Reachability tests to inspect.py
+
+**Goal:** inspect.py checks SSL validity and HTTPS redirect on every deploy. Deploy blocked if SSL is broken.
+
+**Do this AFTER IR-0 is resolved and verified.**
+
+Add these checks to `.github/scripts/inspect.py` as a new Category 5 — Infrastructure & Reachability:
+
+```python
+# ─────────────────────────────────────────────────────────────
+# CATEGORY 5 — INFRASTRUCTURE & REACHABILITY
+# ─────────────────────────────────────────────────────────────
+import urllib.request, ssl as ssl_lib, socket
+
+LIVE_URL = "yadimen.com"  # read from PROJECT-METADATA.md in full implementation
+
+# CI-IR1: HTTPS redirect present in .htaccess
+has_https_redirect = (
+    "RewriteCond %{HTTPS} off" in html and
+    "https://%{HTTP_HOST}" in html
+)
+record("CI-IR1", "HTTPS redirect rule in .htaccess", has_https_redirect)
+
+# CI-IR2: wp-admin preserved (not intercepted by our rules)
+has_wp_preserve = (
+    "REQUEST_URI} ^/wp-" in html and
+    "RewriteRule ^ - [L]" in html
+)
+record("CI-IR2", "WordPress paths preserved in .htaccess", has_wp_preserve)
+
+# CI-IR3: No mixed content (http:// asset references in HTML)
+mixed = re.findall(r'(?:src|href)=["\']http://(?!localhost)[^"\']+', html)
+record("CI-IR3", "No mixed content (HTTP asset references)",
+    len(mixed) == 0,
+    f"Found: {mixed[:2]}" if mixed else "")
+
+# CI-IR4: .well-known path preserved for SSL cert renewal
+has_wellknown = ".well-known" in html
+record("CI-IR4", ".well-known path preserved for SSL renewal", has_wellknown)
+```
+
+Run `inspect.py` — all new checks must pass.
+Commit: `ci: add IR infrastructure checks to inspect.py`
+Push to main.
+
+**STOP AFTER 2 FAILED ATTEMPTS — report to PO**
+
+---
+
+## After both done
+
+Post results as comments here in CLAUDE.md or tell PO:
+- IR-0: `curl -I https://yadimen.com` output
+- IR-2: `inspect.py` pass count (should be 43/43 with new IR checks)
+
+## Do NOT touch
+- `wp-config.php`
 - WordPress core files
-- .htaccess (confirmed working — do not modify)
-- data/test.json (pipeline health check — do not delete)
-
-## Verify Success By
-1. yadimen.com loads with v9 hero
-2. yadimen.com/data/compass.json returns valid JSON
-3. yadimen.com/data/test.json returns valid JSON
-4. GitHub Actions: inspect.py passes 39/39 zero skips
-5. Site renders Compass roles from JSON (not hardcoded)
-
-## Framework Files Status
-| File | Status |
-|------|--------|
-| OPERATIONS.md | ✅ In repo |
-| INSPECTION-REPORT.md | ✅ Auto-generated |
-| deploy.yml | ✅ In repo |
-| inspect.py | ✅ In repo |
-| ENGINEER.md | ❌ Missing |
-| QA.md | ❌ Missing |
-| PROJECT-METADATA.md | ❌ Missing |
-| CLAUDE.md | ✅ This file |
-| agent-poll.py | ❌ Missing |
+- Any file with dates before 2025
 
 ## Last Updated
-March 2026 — end of SDLC bootstrap session
+March 2026 — Emergency SSL + FortiGuard fix session
