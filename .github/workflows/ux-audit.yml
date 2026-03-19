@@ -1,0 +1,31 @@
+name: UX Audit — Lighthouse + Pa11y
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * 1'
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli pa11y
+      - name: Run Lighthouse
+        run: |
+          lhci autorun \
+            --collect.url=https://yadimen.com \
+            --collect.numberOfRuns=1 \
+            --upload.target=temporary-public-storage \
+            --assert.preset=lighthouse:no-pwa \
+            --assert.assertions.categories:performance=["warn",{"minScore":0.8}] \
+            --assert.assertions.categories:accessibility=["error",{"minScore":0.9}]
+      - name: Run Pa11y
+        run: |
+          pa11y https://yadimen.com \
+            --reporter cli \
+            --threshold 5 || true
+        continue-on-error: true
